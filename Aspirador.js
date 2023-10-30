@@ -12,7 +12,7 @@ export class Aspirador {
     _energia = 100;
     
     _bolsa = {
-        espacoDisponivel: 100,
+        espacoDisponivel: 5,
         sujeiraColetada: 0,
     };
 
@@ -85,7 +85,7 @@ export class Aspirador {
     }
     
     esvaziarBolsa() {
-        this._bolsa.espacoDisponivel = 10;
+        this._bolsa.espacoDisponivel = 5;
     }
 
     recarregarEnergia() {}

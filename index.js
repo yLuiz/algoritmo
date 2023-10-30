@@ -10,23 +10,23 @@ let posicaoParada = {
 
 let tudoLimpo = false;
 
-// let quarto = [
-//     [true, false, true, false, false, true],
-//     [false, true, true, true, false, true],
-//     [false, true, false, true, false, true],
-//     [true, false, true, true, false, true],
-//     [false, false, false, true, false, true],
-//     [true, false, true, false, false, true],
-//     [false, false, true, false, false, true],
-//     [true, false, false, false, false, true],
-// ];
-
 let quarto = [
-    [true, false, true, false],
-    [false, true, true, true],
-    [false, true, false, true],
-    [true, false, true, true],
+    [true, false, true, false, false, true],
+    [false, true, true, true, false, true],
+    [false, true, false, true, false, true],
+    [true, false, true, true, false, true],
+    [false, false, false, true, false, true],
+    [true, false, true, false, false, true],
+    [false, false, true, false, false, true],
+    [true, false, false, false, false, true],
 ];
+
+// let quarto = [
+//     [true, false, true, false],
+//     [false, true, true, true],
+//     [false, true, false, true],
+//     [true, false, true, true],
+// ];
 
 function mostrarStatusDoAspirador() {
     console.log(`
@@ -38,15 +38,16 @@ function mostrarStatusDoAspirador() {
 
 let direcao = 'BAIXO';
 let virarDireita = false;
-
-let voltandoAoInicio = false;
 let voltandoParaPosicaoParada = false;
+let bolsaCheia = false;
 
 function voltarParaPosicaoParada() {
     const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
     const [paradaX, paradaY] = [posicaoParada.x, posicaoParada.y];
     const chegouNaLinhaParada = posY === paradaY;
     const chegouNaColunaParada = posX === paradaX;
+
+    aspirador.mostrarPosicaoAtual();
 
     if (!chegouNaLinhaParada) {
         aspirador.mover().baixo();
@@ -61,8 +62,7 @@ function voltarParaPosicaoParada() {
         return;
     }
 
-    console.log("A bolsa está vazia novamente, a limpeza deve continuar de onde parou!");
-    console.log('Voltando ao local parado...');
+    
 }
 
 function voltarAoInicio() {
@@ -70,14 +70,8 @@ function voltarAoInicio() {
     const estaNaUltimaColuna = posX === 0;
 
     if (posX === 0 && posY === 0) {
-        aspirador.esvaziarBolsa();
-        voltandoAoInicio = false;
-        voltandoParaPosicaoParada = true;
         return;
     }
-
-    console.log("A bolsa está cheia, é necessário voltar para esvaziar!");
-    console.log('Voltando ao início...');
 
     if (estaNaUltimaColuna) {
         aspirador.mover().cima();
@@ -96,37 +90,55 @@ function limparQuarto () {
     aspirador.mostrarPosicaoAtual();
     mostrarStatusDoAspirador();
 
-    if (voltandoAoInicio) {
+    if (tudoLimpo) {
         voltarAoInicio();
+        return;
+    };
+
+    if (bolsaCheia) {
+        const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
+
+        if (posX === 0 && posY === 0) {
+            aspirador.esvaziarBolsa();
+            voltandoParaPosicaoParada = true;
+            bolsaCheia = false;
+            return;
+        }
+
+        console.log("A bolsa está cheia, é necessário voltar para esvaziar!");
+        console.log('Voltando ao início...');
+        voltarAoInicio();
+
         return;
     }
 
     if (voltandoParaPosicaoParada) {
         voltarParaPosicaoParada();
+        
+        console.log("A bolsa está vazia novamente, a limpeza deve continuar de onde parou!");
+        console.log('Voltando ao local parado...');
         return;
     }
 
     // Posições x e y antes do próximo movimento ser feito.
     const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-    const chegouAoFinal = posY === 0 && posX === aspirador.estruturaParaLimpar[posY].length - 1;
+    let chegouAoFinal = posY === 0 && posX === (aspirador.estruturaParaLimpar[posY].length - 1);
 
     if (aspirador.estruturaParaLimpar[posY][posX] === false) {
-        if (aspirador.verificarBolsa().bolsaCheia) {
+        console.log('limpando...');
+        aspirador.limpar();
+
+        bolsaCheia = aspirador.verificarBolsa().bolsaCheia;
+        if (bolsaCheia) {
             posicaoParada = {
                 x: posX,
                 y: posY
             }
-
-            voltandoAoInicio = true;
-
             return;
         }
-
-        console.log('limpando...');
-        aspirador.limpar();
     }
 
-    if (virarDireita) {
+    if (virarDireita && !chegouAoFinal) {
         aspirador.mover().direita();
         virarDireita = false;
         return;
@@ -142,9 +154,10 @@ function limparQuarto () {
             aspirador.mover().cima();
             break;
         }
+
         default: 
             return;
-    }
+    }   
 
     const [x, y] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
     const chegouLimiteProfundidade = y === aspirador.estruturaParaLimpar.length - 1;
@@ -163,33 +176,25 @@ function limparQuarto () {
 
     if (chegouAoFinal) {
         tudoLimpo = true;
-        voltarAoInicio();
+        return;
     }
 }
 
 
-const interval = setInterval(() => {
+let interval = setInterval(() => {
 
+    const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
+    if (tudoLimpo && (posX === 0 && posY === 0)) {
+        console.clear();
+        aspirador.mostrarEstrutura();
+        aspirador.mostrarPosicaoAtual();
+        mostrarStatusDoAspirador();
+        clearInterval(interval);
+   
+    }
+    
     console.clear();
-
     limparQuarto();
-
-    // if (tudoLimpo) {
-    //     voltarAoInicio();
-    //     const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-
-    //     // if (posX === 0 && posY === 0) {
-    //     //     setTimeout(() => {
-    //     //         console.clear();
-    //     //         aspirador.mostrarEstrutura();
-    //     //         aspirador.mostrarPosicaoAtual();
-    //     //         mostrarStatusDoAspirador();
-    //     //         clearInterval(interval);
-    //     //     }, TEMPO_DE_ATUALIZACAO)
-    //     // }
-
-        
-    // }
 
 }, TEMPO_DE_ATUALIZACAO);
 
