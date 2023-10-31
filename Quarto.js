@@ -35,7 +35,7 @@ export class Quarto {
         [true, false, false, false, false, true],
     ];
 
-    //estrutura = [
+    // estrutura = [
     //     [true, false, true, false],
     //     [false, true, true, true],
     //     [false, true, false, true],
