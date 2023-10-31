@@ -74,6 +74,7 @@ export class Aspirador {
         const [x, y] = [this._posicaoAtual.x, this._posicaoAtual.y];
 
         this._estruturaParaLimpar[y][x] = true;
+        this._energia--;
         this._bolsa.espacoDisponivel--;
         this._bolsa.sujeiraColetada++;
     }
