@@ -18,6 +18,11 @@ export class Aspirador {
 
     mover() {
 
+        if (this._energia === 0) {
+            console.log("Energia esgotada!!!")
+            return;
+        }
+
         this._energia--;
 
         return {
@@ -71,6 +76,12 @@ export class Aspirador {
     }
 
     limpar() {
+
+        if (this._energia === 0) {
+            console.log("Energia esgotada!!!")
+            return;
+        }
+
         const [x, y] = [this._posicaoAtual.x, this._posicaoAtual.y];
 
         this._estruturaParaLimpar[y][x] = true;
