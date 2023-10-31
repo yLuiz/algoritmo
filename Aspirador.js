@@ -12,7 +12,7 @@ export class Aspirador {
     _energia = 100;
     
     _bolsa = {
-        espacoDisponivel: 5,
+        espacoDisponivel: 10,
         sujeiraColetada: 0,
     };
 
@@ -85,7 +85,7 @@ export class Aspirador {
     }
     
     esvaziarBolsa() {
-        this._bolsa.espacoDisponivel = 5;
+        this._bolsa.espacoDisponivel = 10;
     }
 
     recarregarEnergia() {}
@@ -94,33 +94,6 @@ export class Aspirador {
         this._posicaoAtual = {
             x: 0,
             y: 0,
-        }
-    }
-
-    mostrarPosicaoAtual() {
-        console.log(`x: ${this._posicaoAtual.x} y: ${this._posicaoAtual.y}`);
-    }
-
-    mostrarEstrutura() {
-
-        // i = y => ou seja, i = subir / descer.
-        // j = x => ou seja, j = esquerda / direita.
-        // logo "_estruturaParaLimpar[y][x]" é a forma correta de manipular a matriz.
-
-        for (let i = 0; i < this._estruturaParaLimpar.length; i++) {
-            let line = '';
-            for (let j = 0; j < this._estruturaParaLimpar[i].length; j++) {
-
-                const [x, y] = [this._posicaoAtual.x, this._posicaoAtual.y];
-
-                if (y === i && x === j) {
-                    line += `|( ASP )|`;
-                }
-                else {
-                    line += `${this._estruturaParaLimpar[i][j] ? '| LIMPO |' : '| SUJO  |'}`;
-                }
-            }
-            console.log(line);
         }
     }
 

@@ -2,7 +2,19 @@ import { Aspirador } from './Aspirador.js';
 
 export class Quarto {
 
-    aspirador = new Aspirador();
+    constructor(aspirador) {
+
+        if (aspirador instanceof Aspirador) {
+            this._aspirador = aspirador;
+        }
+        else {
+            if (!aspirador) {
+                throw new Error("Dependência da classe não foi passada.");
+            }
+            throw new Error("Dependência da classe está incorreta.");
+        }
+    }
+
     TEMPO_DE_ATUALIZACAO = 1000;
 
     posicaoParada = {
@@ -12,7 +24,7 @@ export class Quarto {
 
     tudoLimpo = false;
 
-    quarto = [
+    estrutura = [
         [true, false, true, false, false, true],
         [false, true, true, true, false, true],
         [false, true, false, true, false, true],
@@ -23,7 +35,7 @@ export class Quarto {
         [true, false, false, false, false, true],
     ];
 
-    //quarto = [
+    //estrutura = [
     //     [true, false, true, false],
     //     [false, true, true, true],
     //     [false, true, false, true],
@@ -32,9 +44,9 @@ export class Quarto {
 
     mostrarStatusDoAspirador() {
         console.log(`
-            Espaço disponível na bolsa: ${aspirador.bolsa.espacoDisponivel}
-            Sujeira coletada: ${aspirador.bolsa.sujeiraColetada}
-            Energia: ${aspirador.energia}
+            Espaço disponível na bolsa: ${this._aspirador.bolsa.espacoDisponivel}
+            Sujeira coletada: ${this._aspirador.bolsa.sujeiraColetada}
+            Energia: ${this._aspirador.energia}
         `)
     }
 
@@ -44,23 +56,23 @@ export class Quarto {
     bolsaCheia = false;
 
     voltarParaPosicaoParada() {
-        const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-        const [paradaX, paradaY] = [posicaoParada.x, posicaoParada.y];
+        const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
+        const [paradaX, paradaY] = [this.posicaoParada.x, this.posicaoParada.y];
         const chegouNaLinhaParada = posY === paradaY;
         const chegouNaColunaParada = posX === paradaX;
 
-        aspirador.mostrarPosicaoAtual();
+        this.mostrarPosicaoAtual();
 
         if (!chegouNaLinhaParada) {
-            aspirador.mover().baixo();
+            this._aspirador.mover().baixo();
         }
 
         if (chegouNaLinhaParada && !chegouNaColunaParada) {
-            aspirador.mover().direita();
+            this._aspirador.mover().direita();
         }
 
         if (posX === paradaX && posY === paradaY) {
-            voltandoParaPosicaoParada = false;
+            this.voltandoParaPosicaoParada = false;
             return;
         }
 
@@ -68,7 +80,7 @@ export class Quarto {
     }
 
     voltarAoInicio() {
-        const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
+        const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
         const estaNaUltimaColuna = posX === 0;
 
         if (posX === 0 && posY === 0) {
@@ -76,46 +88,46 @@ export class Quarto {
         }
 
         if (estaNaUltimaColuna) {
-            aspirador.mover().cima();
+            this._aspirador.mover().cima();
             return;
         }
 
-        aspirador.mover().esquerda();
+        this._aspirador.mover().esquerda();
     }
 
 
     limparQuarto () {
 
         // Iniciando a limpeza
-        aspirador.ligar(quarto);
-        aspirador.mostrarEstrutura();
-        aspirador.mostrarPosicaoAtual();
-        mostrarStatusDoAspirador();
+        this._aspirador.ligar(this.estrutura);
+        this.mostrarEstrutura();
+        this.mostrarPosicaoAtual();
+        this.mostrarStatusDoAspirador();
 
-        if (tudoLimpo) {
-            voltarAoInicio();
+        if (this.tudoLimpo) {
+            this.voltarAoInicio();
             return;
         };
 
-        if (bolsaCheia) {
-            const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
+        if (this.bolsaCheia) {
+            const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
 
             if (posX === 0 && posY === 0) {
-                aspirador.esvaziarBolsa();
-                voltandoParaPosicaoParada = true;
-                bolsaCheia = false;
+                this._aspirador.esvaziarBolsa();
+                this.voltandoParaPosicaoParada = true;
+                this.bolsaCheia = false;
                 return;
             }
 
             console.log("A bolsa está cheia, é necessário voltar para esvaziar!");
             console.log('Voltando ao início...');
-            voltarAoInicio();
+            this.voltarAoInicio();
 
             return;
         }
 
-        if (voltandoParaPosicaoParada) {
-            voltarParaPosicaoParada();
+        if (this.voltandoParaPosicaoParada) {
+            this.voltarParaPosicaoParada();
             
             console.log("A bolsa está vazia novamente, a limpeza deve continuar de onde parou!");
             console.log('Voltando ao local parado...');
@@ -123,16 +135,16 @@ export class Quarto {
         }
 
         // Posições x e y antes do próximo movimento ser feito.
-        const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-        let chegouAoFinal = posY === 0 && posX === (aspirador.estruturaParaLimpar[posY].length - 1);
+        const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
+        let chegouAoFinal = posY === 0 && posX === (this._aspirador.estruturaParaLimpar[posY].length - 1);
 
-        if (aspirador.estruturaParaLimpar[posY][posX] === false) {
+        if (this._aspirador.estruturaParaLimpar[posY][posX] === false) {
             console.log('limpando...');
-            aspirador.limpar();
+            this._aspirador.limpar();
 
-            bolsaCheia = aspirador.verificarBolsa().bolsaCheia;
-            if (bolsaCheia) {
-                posicaoParada = {
+            this.bolsaCheia = this._aspirador.verificarBolsa().bolsaCheia;
+            if (this.bolsaCheia) {
+                this.posicaoParada = {
                     x: posX,
                     y: posY
                 }
@@ -140,20 +152,20 @@ export class Quarto {
             }
         }
 
-        if (virarDireita && !chegouAoFinal) {
-            aspirador.mover().direita();
-            virarDireita = false;
+        if (this.virarDireita && !chegouAoFinal) {
+            this._aspirador.mover().direita();
+            this.virarDireita = false;
             return;
         }
 
-        switch (direcao) {
+        switch (this.direcao) {
             case 'BAIXO': {
-                aspirador.mover().baixo();
+                this._aspirador.mover().baixo();
                 break;
             }
 
             case 'CIMA': {
-                aspirador.mover().cima();
+                this._aspirador.mover().cima();
                 break;
             }
 
@@ -161,44 +173,78 @@ export class Quarto {
                 return;
         }   
 
-        const [x, y] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-        const chegouLimiteProfundidade = y === aspirador.estruturaParaLimpar.length - 1;
+        const [x, y] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
+        const chegouLimiteProfundidade = y === this._aspirador.estruturaParaLimpar.length - 1;
         const chegouLimiteAltura = y === 0;
         
         if (chegouLimiteProfundidade) {
-            direcao = 'CIMA';
+            this.direcao = 'CIMA';
 
-            virarDireita = true;
+            this.virarDireita = true;
         }
         else if (chegouLimiteAltura) {
-            direcao = 'BAIXO';
+            this.direcao = 'BAIXO';
 
-            virarDireita = true;
+            this.virarDireita = true;
         }
 
         if (chegouAoFinal) {
-            tudoLimpo = true;
+            this.tudoLimpo = true;
             return;
         }
-}
+    }
 
+    mostrarEstrutura() {
 
-    interval = setInterval(() => {
-
-        const [posX, posY] = [aspirador.posicaoAtual.x, aspirador.posicaoAtual.y];
-        if (tudoLimpo && (posX === 0 && posY === 0)) {
-            console.clear();
-            aspirador.mostrarEstrutura();
-            aspirador.mostrarPosicaoAtual();
-            mostrarStatusDoAspirador();
-            clearInterval(interval);
+        const estruturaParaLimpar = this._aspirador.estruturaParaLimpar;
+        const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
     
+        // i = y => ou seja, i = subir / descer.
+        // j = x => ou seja, j = esquerda / direita.
+        // logo "_estruturaParaLimpar[y][x]" é a forma correta de manipular a matriz.
+    
+        for (let i = 0; i < estruturaParaLimpar.length; i++) {
+            let line = '';
+            for (let j = 0; j < estruturaParaLimpar[i].length; j++) {
+    
+                const [x, y] = [posX, posY];
+    
+                if (y === i && x === j) {
+                    line += `|((ASP))|`;
+                }
+                else {
+                    line += `${estruturaParaLimpar[i][j] ? '| LIMPO |' : '| SUJO  |'}`;
+                }
+            }
+            console.log(line);
         }
-        
-        console.clear();
-        limparQuarto();
+    }
+    
+    mostrarPosicaoAtual() {
+        const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
+    
+        console.log(`x: ${posX} y: ${posY}`);
+    }
 
-    }, TEMPO_DE_ATUALIZACAO);
+
+    iniciarLimpeza() {
+        let interval = setInterval(() => {
+
+            const [posX, posY] = [this._aspirador.posicaoAtual.x, this._aspirador.posicaoAtual.y];
+            if (this.tudoLimpo && (posX === 0 && posY === 0)) {
+                console.clear();
+                this.mostrarEstrutura();
+                this.mostrarPosicaoAtual();
+                this.mostrarStatusDoAspirador();
+                clearInterval(interval);
+        
+            }
+            
+            console.clear();
+            this.limparQuarto();
+    
+        }, this.TEMPO_DE_ATUALIZACAO);
+    }
 }
 
 // O aspirador possuí inicialmente 100 pontos de energia, cada ação custa 1 energia.
